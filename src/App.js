@@ -30,7 +30,7 @@ import "./App.css";
 // --- Step 1: Use Environment Variables for all secrets ---
 const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
-const __app_id = "jerseyhub";
+const __app_id = "jerseyhub"; // <-- change "jersin" to your intended value
 
 // --- IMPORTANT: The Admin UIDs are now also environment variables ---
 const ADMIN_UID = process.env.REACT_APP_ADMIN_UID;
@@ -99,7 +99,7 @@ const Header = ({ setPage, user }) => {
           }}
           className="header__logo"
         >
-          JERSEY<span className="header__logo--red">HUB</span>
+          JERS<span className="header__logo--red">IN</span>
         </a>
         <nav className={`header__nav ${isMenuOpen ? "is-open" : ""}`}>
           <a

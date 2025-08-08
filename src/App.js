@@ -21,30 +21,29 @@ import {
 } from "firebase/firestore";
 import {
   getAuth,
-  signInAnonymously,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
 import "./App.css";
 
-// --- Step 1: Add your Cloudinary and Firebase credentials ---
-const CLOUDINARY_CLOUD_NAME = "dnksifaqz";
-const CLOUDINARY_UPLOAD_PRESET = "jersey_uploads";
+// --- Step 1: Use Environment Variables for all secrets ---
+const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
 const __app_id = "jerseyhub";
 
-// --- IMPORTANT: PASTE YOUR ADMIN'S FIREBASE UID HERE ---
-const ADMIN_UID = "12GZHlsUgddAqP2pea2Uonzo5R02";
-const ADMIN_UID2 = "fQ6eFDWTBcZjzjGwfJcX1rZEcBG2";
+// --- IMPORTANT: The Admin UIDs are now also environment variables ---
+const ADMIN_UID = process.env.REACT_APP_ADMIN_UID;
+const ADMIN_UID2 = process.env.REACT_APP_ADMIN_UID2;
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDu4WCEVqMa4H_lj0sOg3Xe1QIuUxKB3XQ",
-  authDomain: "jersey-app-70680.firebaseapp.com",
-  projectId: "jersey-app-70680",
-  storageBucket: "jersey-app-70680.appspot.com",
-  messagingSenderId: "616174087940",
-  appId: "1:616174087940:web:29c71244024faf509caa51",
-  measurementId: "G-8816R07BQH",
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
@@ -578,8 +577,8 @@ export default function App() {
   const renderPage = () => {
     switch (page) {
       case "admin":
-        // Only render AdminPortal if the logged-in user is the admin
-        return user && user.uid === ADMIN_UID ? (
+        // Only render AdminPortal if the logged-in user is one of the admins
+        return user && (user.uid === ADMIN_UID || user.uid === ADMIN_UID2) ? (
           <AdminPortal />
         ) : (
           <LoginPage setPage={setPage} />

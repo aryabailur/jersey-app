@@ -27,41 +27,64 @@ import {
 } from "firebase/auth";
 import "./App.css";
 
-// --- Step 1: Use Environment Variables for all secrets ---
-const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
-const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
-const __app_id = "jerseyhub"; // <-- change "jersin" to your intended value
+// --- Environment Variables ---
+// In a real Create React App, these would be in a .env file
+// For this example, we'll use placeholder values.
+const CLOUDINARY_CLOUD_NAME =
+  process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || "demo";
+const CLOUDINARY_UPLOAD_PRESET =
+  process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || "docs_upload_example";
+const __app_id = "jerseyhub";
 
-// --- IMPORTANT: The Admin UIDs are now also environment variables ---
+// --- IMPORTANT: Admin UIDs ---
 const ADMIN_UID = process.env.REACT_APP_ADMIN_UID;
 const ADMIN_UID2 = process.env.REACT_APP_ADMIN_UID2;
 
+// --- Firebase Configuration ---
+// IMPORTANT: Replace with your actual Firebase config
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "your-api-key",
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "your-auth-domain",
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "your-project-id",
+  storageBucket:
+    process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "your-storage-bucket",
+  messagingSenderId:
+    process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "your-sender-id",
+  appId: process.env.REACT_APP_FIREBASE_APP_ID || "your-app-id",
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+let app;
+let db;
+let auth;
 
-// --- Components ---
+try {
+  app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  auth = getAuth(app);
+} catch (error) {
+  console.error("Firebase initialization error:", error);
+}
+
+// --- Custom Hooks ---
 
 const useInView = (options) => {
   const ref = useRef(null);
   const [isInView, setIsInView] = useState(false);
 
   useEffect(() => {
+    // Ensure window.IntersectionObserver is available
+    if (typeof window.IntersectionObserver === "undefined") {
+      setIsInView(true); // Fallback for unsupported browsers
+      return;
+    }
+
     const observer = new window.IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
         setIsInView(true);
-        observer.unobserve(entry.target);
+        if (entry.target) {
+          observer.unobserve(entry.target);
+        }
       }
     }, options);
 
@@ -80,11 +103,15 @@ const useInView = (options) => {
   return [ref, isInView];
 };
 
+// --- Components ---
+
 const Header = ({ setPage, user }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
-    signOut(auth);
+    if (auth) {
+      signOut(auth);
+    }
     setPage("shop");
   };
 
@@ -99,7 +126,7 @@ const Header = ({ setPage, user }) => {
           }}
           className="header__logo"
         >
-          JERS<span className="header__logo--red">IN</span>
+          JERSEY<span className="header__logo--red">HUB</span>
         </a>
         <nav className={`header__nav ${isMenuOpen ? "is-open" : ""}`}>
           <a
@@ -107,6 +134,7 @@ const Header = ({ setPage, user }) => {
             onClick={(e) => {
               e.preventDefault();
               setPage("shop");
+              setIsMenuOpen(false);
             }}
             className="header__nav-link"
           >
@@ -124,6 +152,7 @@ const Header = ({ setPage, user }) => {
               onClick={(e) => {
                 e.preventDefault();
                 setPage("admin");
+                setIsMenuOpen(false);
               }}
               className="header__nav-link admin-link"
             >
@@ -184,15 +213,16 @@ const HeroSection = () => (
         The official 2024/25 kits have landed. Find your team's colours and
         support them in style.
       </p>
-      <a href="#" className="button button--primary">
+      <a href="#products" className="button button--primary">
         Shop The Collection
       </a>
     </div>
+    <div className="hero__fade"></div>
   </section>
 );
 
 const FilterBar = () => (
-  <div className="filter-bar">
+  <div id="products" className="filter-bar">
     <div className="container filter-bar__container">
       <div className="filter-bar__group">
         <span className="filter-bar__label">Filter by:</span>
@@ -219,10 +249,12 @@ const FilterBar = () => (
 );
 
 const ProductCard = ({ jersey }) => {
-  const [ref, isInView] = useInView({ threshold: 0.1 });
+  const [ref, isInView] = useInView({ threshold: 0.1, triggerOnce: true });
   const getTagClass = (tag) => {
-    if (tag === "Sale") return "product-card__tag--sale";
-    if (tag === "Limited Edition") return "product-card__tag--limited";
+    if (!tag) return "";
+    const lowerCaseTag = tag.toLowerCase();
+    if (lowerCaseTag.includes("sale")) return "product-card__tag--sale";
+    if (lowerCaseTag.includes("limited")) return "product-card__tag--limited";
     return "product-card__tag--new";
   };
   return (
@@ -235,7 +267,9 @@ const ProductCard = ({ jersey }) => {
       <div className="product-card__image-wrapper">
         <img
           src={jersey.imageUrl}
-          alt={jersey.alt || `${jersey.team} - ${jersey.name}`}
+          alt={
+            jersey.alt || `${jersey.team} - ${jersey.name}` || "Jersey Image"
+          }
           className="product-card__image"
           onError={(e) => {
             e.target.onerror = null;
@@ -323,18 +357,29 @@ const AdminPortal = () => {
   const [imageFile, setImageFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const fileInputRef = useRef(null);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setProduct((prev) => ({ ...prev, [name]: value }));
   };
+
   const handleFileChange = (e) => {
     if (e.target.files[0]) {
       setImageFile(e.target.files[0]);
     }
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!imageFile || !product.name || !product.price) {
+    if (isLoading) return;
+    if (
+      !imageFile ||
+      !product.name ||
+      !product.price ||
+      !product.team ||
+      !product.alt
+    ) {
       setMessage("Please fill all required fields and upload an image.");
       return;
     }
@@ -355,6 +400,7 @@ const AdminPortal = () => {
       const data = await response.json();
       const imageUrl = data.secure_url;
       setMessage("Image uploaded! Saving product to database...");
+
       const productData = {
         ...product,
         price: parseFloat(product.price),
@@ -362,8 +408,10 @@ const AdminPortal = () => {
         imageUrl: imageUrl,
         createdAt: new Date(),
       };
+
       const firestorePath = `artifacts/${__app_id}/public/data/products`;
       await addDoc(collection(db, firestorePath), productData);
+
       setMessage("Product added successfully!");
       setProduct({
         name: "",
@@ -375,6 +423,7 @@ const AdminPortal = () => {
         alt: "",
       });
       setImageFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
       e.target.reset();
     } catch (error) {
       console.error("Error adding product: ", error);
@@ -383,12 +432,13 @@ const AdminPortal = () => {
       setIsLoading(false);
     }
   };
+
   return (
     <section className="admin-portal">
       <div className="container">
         <h2 className="section-title">Admin Portal</h2>
         <p className="section-subtitle">Add a new jersey to the store.</p>
-        <form onSubmit={handleSubmit} className="admin-form">
+        <form onSubmit={handleSubmit} className="admin-form" autoComplete="off">
           <div className="form-grid">
             <input
               type="text"
@@ -397,6 +447,7 @@ const AdminPortal = () => {
               value={product.name}
               onChange={handleInputChange}
               required
+              autoComplete="off"
             />
             <input
               type="text"
@@ -405,6 +456,7 @@ const AdminPortal = () => {
               value={product.team}
               onChange={handleInputChange}
               required
+              autoComplete="off"
             />
             <input
               type="number"
@@ -413,6 +465,7 @@ const AdminPortal = () => {
               value={product.price}
               onChange={handleInputChange}
               required
+              autoComplete="off"
             />
             <input
               type="number"
@@ -421,6 +474,7 @@ const AdminPortal = () => {
               placeholder="Rating (e.g., 4.5)"
               value={product.rating}
               onChange={handleInputChange}
+              autoComplete="off"
             />
             <input
               type="text"
@@ -428,6 +482,7 @@ const AdminPortal = () => {
               placeholder="Brand (e.g., Adidas)"
               value={product.brand}
               onChange={handleInputChange}
+              autoComplete="off"
             />
             <input
               type="text"
@@ -435,6 +490,7 @@ const AdminPortal = () => {
               placeholder="Tag (e.g., New Arrival)"
               value={product.tag}
               onChange={handleInputChange}
+              autoComplete="off"
             />
             <input
               type="text"
@@ -443,6 +499,7 @@ const AdminPortal = () => {
               value={product.alt}
               onChange={handleInputChange}
               required
+              autoComplete="off"
             />
           </div>
           <div className="file-upload-wrapper">
@@ -456,6 +513,7 @@ const AdminPortal = () => {
               onChange={handleFileChange}
               accept="image/*"
               required
+              ref={fileInputRef}
             />
           </div>
           <button
@@ -486,6 +544,10 @@ const LoginPage = ({ setPage }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (!auth) {
+      setError("Firebase not initialized. Please check your configuration.");
+      return;
+    }
     setIsLoading(true);
     setError("");
     try {
@@ -502,13 +564,14 @@ const LoginPage = ({ setPage }) => {
     <section className="login-page">
       <div className="container">
         <h2 className="section-title">Admin Login</h2>
-        <form onSubmit={handleLogin} className="login-form">
+        <form onSubmit={handleLogin} className="login-form" autoComplete="off">
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            autoComplete="off"
           />
           <input
             type="password"
@@ -516,6 +579,7 @@ const LoginPage = ({ setPage }) => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            autoComplete="off"
           />
           <button
             type="submit"
@@ -531,26 +595,33 @@ const LoginPage = ({ setPage }) => {
   );
 };
 
+// --- Main App Component ---
+
 export default function App() {
   const [page, setPage] = useState("shop");
   const [jerseys, setJerseys] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
 
+  // Authentication state listener
   useEffect(() => {
+    if (!auth) return;
     const authUnsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser); // Set the full user object
-      if (!currentUser) {
-        // If logged out, ensure we are not on the admin page
-        if (page === "admin") {
-          setPage("shop");
-        }
+      setUser(currentUser);
+      if (!currentUser && page === "admin") {
+        setPage("shop");
       }
     });
     return () => authUnsubscribe();
   }, [page]);
 
+  // Firestore data listener
   useEffect(() => {
+    if (!db) {
+      console.error("Firestore DB is not initialized.");
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     const collectionName = "products";
     const firestorePath = `artifacts/${__app_id}/public/data/${collectionName}`;
@@ -577,7 +648,6 @@ export default function App() {
   const renderPage = () => {
     switch (page) {
       case "admin":
-        // Only render AdminPortal if the logged-in user is one of the admins
         return user && (user.uid === ADMIN_UID || user.uid === ADMIN_UID2) ? (
           <AdminPortal />
         ) : (
@@ -594,7 +664,13 @@ export default function App() {
             <section className="product-section">
               <div className="container">
                 {isLoading ? (
-                  <p style={{ textAlign: "center", padding: "2rem" }}>
+                  <p
+                    style={{
+                      textAlign: "center",
+                      padding: "4rem",
+                      fontSize: "1.2rem",
+                    }}
+                  >
                     Loading Products...
                   </p>
                 ) : jerseys.length > 0 ? (
@@ -604,7 +680,13 @@ export default function App() {
                     ))}
                   </div>
                 ) : (
-                  <p style={{ textAlign: "center", padding: "2rem" }}>
+                  <p
+                    style={{
+                      textAlign: "center",
+                      padding: "4rem",
+                      fontSize: "1.2rem",
+                    }}
+                  >
                     No products found. Add some in the Admin page!
                   </p>
                 )}

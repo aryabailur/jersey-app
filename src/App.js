@@ -447,16 +447,13 @@ const AdminPortal = () => {
       console.log("Extracted public ID for Cloudinary deletion:", publicId);
 
       // Step 2: Make the secure server-side call to delete the image from Cloudinary
-      const cloudinaryResponse = await fetch(
-        "http://localhost:3001/api/delete-image",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ publicId }),
-        }
-      );
+      const cloudinaryResponse = await fetch("/api/delete-image", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ publicId }),
+      });
 
       if (!cloudinaryResponse.ok) {
         const errorData = await cloudinaryResponse.json();

@@ -10,6 +10,7 @@ cloudinary.config({
 });
 
 module.exports = async (req, res) => {
+  // Add a handler to ensure the function correctly processes POST requests
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
   }

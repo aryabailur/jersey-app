@@ -7,6 +7,7 @@
   --text-secondary: #a9a9a9; /* Cyber Grey - Secondary Text */
   --border-color: #333333; /* Charcoal - Subtle Borders */
   --accent-text-color: #1a1a1a; /* Onyx - For text on primary buttons */
+  --error-color: #ff6b6b;
   --font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
     "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
     "Helvetica Neue", sans-serif;
@@ -69,6 +70,14 @@ body {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
 }
+.button--delete {
+  background-color: #c0392b;
+  color: #fff;
+}
+.button--delete:hover {
+  background-color: #e74c3c;
+}
+
 .section-title {
   font-size: 2.25rem;
   font-weight: 800;
@@ -553,13 +562,157 @@ body {
   width: 100%;
   margin-top: 1rem;
 }
+.admin-submit-button {
+  width: 100%;
+}
 .form-message {
   text-align: center;
   margin-top: 1rem;
   font-weight: 500;
 }
 .form-message--error {
-  color: #ff6b6b; /* Using a standard light red for errors */
+  color: var(--error-color);
+}
+
+/* Admin Product List */
+.admin-product-list-section {
+  padding: 2.5rem 0;
+}
+.admin-message {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 2rem 0;
+}
+.admin-product-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+.admin-product-card {
+  display: flex;
+  align-items: center;
+  background-color: var(--card-color);
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.admin-product-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary-color);
+}
+.admin-product-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  margin-right: 1.5rem;
+}
+.admin-product-info {
+  flex-grow: 1;
+}
+.admin-product-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  font-size: 1.1rem;
+}
+.admin-product-price {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0.25rem 0 0;
+}
+.admin-product-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.admin-action-button {
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.admin-action-button:hover {
+  background-color: var(--border-color);
+}
+.admin-action-button--delete {
+  color: #ff6b6b;
+}
+.admin-action-button--delete:hover {
+  background-color: #3b2222;
+}
+
+/* Modal Styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+.modal {
+  background-color: var(--card-color);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  padding: 2.5rem;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  position: relative;
+  text-align: center;
+}
+.modal-header {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+}
+.modal-close-button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.3s;
+}
+.modal-close-button:hover {
+  color: var(--text-primary);
+}
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+.modal-message {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+.modal-message .font-semibold {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+.modal-actions .button {
+  min-width: 120px;
+}
+.button--delete {
+  background-color: #c0392b; /* A strong red for delete action */
+  color: white;
+}
+.button--delete:hover {
+  background-color: #e74c3c;
 }
 
 /* 7. Footer */
@@ -707,5 +860,16 @@ body {
   }
   .section-title {
     font-size: 1.8rem;
+  }
+  .admin-product-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  .admin-product-image {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+  .admin-product-actions {
+    margin-top: 1rem;
   }
 }

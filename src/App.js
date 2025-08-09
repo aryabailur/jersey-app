@@ -11,6 +11,9 @@ import {
   Zap,
   UploadCloud,
   PlusCircle,
+  Trash2,
+  Eye,
+  XCircle,
 } from "lucide-react";
 import { initializeApp } from "firebase/app";
 import {
@@ -18,6 +21,8 @@ import {
   collection,
   addDoc,
   onSnapshot,
+  doc,
+  deleteDoc,
 } from "firebase/firestore";
 import {
   getAuth,
@@ -28,13 +33,12 @@ import {
 import "./App.css";
 
 // --- Environment Variables ---
-// In a real Create React App, these would be in a .env file
-// For this example, we'll use placeholder values.
 const CLOUDINARY_CLOUD_NAME =
   process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || "demo";
 const CLOUDINARY_UPLOAD_PRESET =
   process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || "docs_upload_example";
-const __app_id = "jerseyhub";
+const CLOUDINARY_API_KEY = "YOUR_API_KEY"; // Placeholder for API key needed for deletion
+const __app_id = "jerseyhub"; // This should be a global variable or set from your environment
 
 // --- IMPORTANT: Admin UIDs ---
 const ADMIN_UID = process.env.REACT_APP_ADMIN_UID;
@@ -345,6 +349,9 @@ const Footer = () => (
 );
 
 const AdminPortal = () => {
+  // ==============================================
+  // 📦 State Management
+  // ==============================================
   const [product, setProduct] = useState({
     name: "",
     team: "",
@@ -354,11 +361,49 @@ const AdminPortal = () => {
     tag: "",
     alt: "",
   });
+  const [products, setProducts] = useState([]);
   const [imageFile, setImageFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
   const fileInputRef = useRef(null);
 
+  // State for the delete confirmation modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+
+  // ==============================================
+  // 🔐 Authentication & Data Fetching
+  // ==============================================
+  useEffect(() => {
+    // We get products here instead of in the App component, this is more specific to the Admin Portal.
+    if (!db) {
+      console.error("Firestore DB is not initialized.");
+      return;
+    }
+    const firestorePath = `artifacts/${__app_id}/public/data/products`;
+    const productsCollectionRef = collection(db, firestorePath);
+
+    const unsubscribe = onSnapshot(
+      productsCollectionRef,
+      (snapshot) => {
+        const productsData = [];
+        snapshot.forEach((doc) => {
+          productsData.push({ id: doc.id, ...doc.data() });
+        });
+        setProducts(productsData);
+      },
+      (error) => {
+        console.error("Error fetching products:", error);
+        setProducts([]);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  // ==============================================
+  // ✍️ Event Handlers
+  // ==============================================
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setProduct((prev) => ({ ...prev, [name]: value }));
@@ -367,6 +412,64 @@ const AdminPortal = () => {
   const handleFileChange = (e) => {
     if (e.target.files[0]) {
       setImageFile(e.target.files[0]);
+    }
+  };
+
+  const handleDeleteClick = (product) => {
+    setProductToDelete(product);
+    setIsModalOpen(true);
+  };
+
+  const handleCancelDelete = () => {
+    setIsModalOpen(false);
+    setProductToDelete(null);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!productToDelete) return;
+
+    setIsLoading(true);
+    setMessage(`Deleting ${productToDelete.name}...`);
+    setIsModalOpen(false); // Close the modal immediately
+
+    try {
+      // Step 1: Extract the public_id from the Cloudinary image URL
+      const urlParts = productToDelete.imageUrl.split("/");
+      const publicIdWithExt = urlParts.pop(); // 'my-image.jpg'
+      const version = urlParts.pop(); // 'v1612345678'
+      const folderPath = urlParts
+        .slice(urlParts.indexOf("upload") + 1)
+        .join("/"); // 'my-folder'
+      const publicId = folderPath
+        ? `${folderPath}/${publicIdWithExt.split(".")[0]}`
+        : publicIdWithExt.split(".")[0];
+
+      console.log("Extracted public ID for Cloudinary deletion:", publicId);
+
+      // Step 2: Delete from Cloudinary (requires a server-side call)
+      // This is a placeholder as direct client-side deletion is insecure.
+      setMessage(
+        "Product deleted from Firestore. Image deletion from Cloudinary would happen here via a secure backend call."
+      );
+      console.warn(
+        "Cloudinary deletion requires a secure backend endpoint. The image has NOT been deleted from Cloudinary in this demo."
+      );
+
+      // Step 3: Delete from Firestore
+      const docRef = doc(
+        db,
+        `artifacts/${__app_id}/public/data/products`,
+        productToDelete.id
+      );
+      await deleteDoc(docRef);
+
+      setMessage("Product deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting product: ", error);
+      setMessage(`Error: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+      setProductToDelete(null);
     }
   };
 
@@ -433,106 +536,212 @@ const AdminPortal = () => {
     }
   };
 
+  // ==============================================
+  // 💻 Component UI
+  // ==============================================
   return (
-    <section className="admin-portal">
+    <div className="admin-portal">
       <div className="container">
-        <h2 className="section-title">Admin Portal</h2>
-        <p className="section-subtitle">Add a new jersey to the store.</p>
-        <form onSubmit={handleSubmit} className="admin-form" autoComplete="off">
-          <div className="form-grid">
-            <input
-              type="text"
-              name="name"
-              placeholder="Jersey Name"
-              value={product.name}
-              onChange={handleInputChange}
-              required
-              autoComplete="off"
-            />
-            <input
-              type="text"
-              name="team"
-              placeholder="Team"
-              value={product.team}
-              onChange={handleInputChange}
-              required
-              autoComplete="off"
-            />
-            <input
-              type="number"
-              name="price"
-              placeholder="Price"
-              value={product.price}
-              onChange={handleInputChange}
-              required
-              autoComplete="off"
-            />
-            <input
-              type="number"
-              step="0.1"
-              name="rating"
-              placeholder="Rating (e.g., 4.5)"
-              value={product.rating}
-              onChange={handleInputChange}
-              autoComplete="off"
-            />
-            <input
-              type="text"
-              name="brand"
-              placeholder="Brand (e.g., Adidas)"
-              value={product.brand}
-              onChange={handleInputChange}
-              autoComplete="off"
-            />
-            <input
-              type="text"
-              name="tag"
-              placeholder="Tag (e.g., New Arrival)"
-              value={product.tag}
-              onChange={handleInputChange}
-              autoComplete="off"
-            />
-            <input
-              type="text"
-              name="alt"
-              placeholder="Image Alt Text"
-              value={product.alt}
-              onChange={handleInputChange}
-              required
-              autoComplete="off"
-            />
-          </div>
-          <div className="file-upload-wrapper">
-            <label htmlFor="file-upload" className="file-upload-label">
-              <UploadCloud />
-              <span>{imageFile ? imageFile.name : "Upload Jersey Image"}</span>
-            </label>
-            <input
-              id="file-upload"
-              type="file"
-              onChange={handleFileChange}
-              accept="image/*"
-              required
-              ref={fileInputRef}
-            />
-          </div>
-          <button
-            type="submit"
-            className="button button--primary"
-            disabled={isLoading}
+        <section>
+          <h2 className="section-title">Admin Portal</h2>
+          <p className="section-subtitle">Add a new jersey to the store.</p>
+          <form
+            onSubmit={handleSubmit}
+            className="admin-form"
+            autoComplete="off"
           >
-            {isLoading ? (
-              "Uploading..."
-            ) : (
-              <>
-                <PlusCircle size={20} /> Add Product
-              </>
+            <div className="form-grid">
+              <input
+                type="text"
+                name="name"
+                placeholder="Jersey Name"
+                value={product.name}
+                onChange={handleInputChange}
+                required
+                autoComplete="off"
+              />
+              <input
+                type="text"
+                name="team"
+                placeholder="Team"
+                value={product.team}
+                onChange={handleInputChange}
+                required
+                autoComplete="off"
+              />
+              <input
+                type="number"
+                name="price"
+                placeholder="Price"
+                value={product.price}
+                onChange={handleInputChange}
+                required
+                autoComplete="off"
+              />
+              <input
+                type="number"
+                step="0.1"
+                name="rating"
+                placeholder="Rating (e.g., 4.5)"
+                value={product.rating}
+                onChange={handleInputChange}
+                autoComplete="off"
+              />
+              <input
+                type="text"
+                name="brand"
+                placeholder="Brand (e.g., Adidas)"
+                value={product.brand}
+                onChange={handleInputChange}
+                autoComplete="off"
+              />
+              <input
+                type="text"
+                name="tag"
+                placeholder="Tag (e.g., New Arrival)"
+                value={product.tag}
+                onChange={handleInputChange}
+                autoComplete="off"
+              />
+              <input
+                type="text"
+                name="alt"
+                placeholder="Image Alt Text"
+                value={product.alt}
+                onChange={handleInputChange}
+                required
+                autoComplete="off"
+              />
+            </div>
+            <div className="file-upload-wrapper">
+              <label htmlFor="file-upload" className="file-upload-label">
+                <UploadCloud size={24} />
+                <span>
+                  {imageFile ? imageFile.name : "Upload Jersey Image"}
+                </span>
+              </label>
+              <input
+                id="file-upload"
+                type="file"
+                onChange={handleFileChange}
+                accept="image/*"
+                required
+                ref={fileInputRef}
+                className="hidden"
+              />
+            </div>
+            <button
+              type="submit"
+              className="button button--primary admin-submit-button"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                "Uploading..."
+              ) : (
+                <>
+                  <PlusCircle size={20} /> Add Product
+                </>
+              )}
+            </button>
+            {message && (
+              <p
+                className={`form-message ${
+                  message.startsWith("Error") ? "form-message--error" : ""
+                }`}
+              >
+                {message}
+              </p>
             )}
-          </button>
-          {message && <p className="form-message">{message}</p>}
-        </form>
+          </form>
+        </section>
+
+        <section className="admin-product-list-section">
+          <h2 className="section-title">Current Products</h2>
+          {products.length === 0 && !isLoading && (
+            <p className="admin-message">
+              No products found. Add a new one above!
+            </p>
+          )}
+          {products.length > 0 && (
+            <div className="admin-product-grid">
+              {products.map((p) => (
+                <div key={p.id} className="admin-product-card">
+                  <img
+                    src={p.imageUrl}
+                    alt={p.alt}
+                    className="admin-product-image"
+                  />
+                  <div className="admin-product-info">
+                    <p className="admin-product-name">
+                      {p.name} - {p.team}
+                    </p>
+                    <p className="admin-product-price">
+                      ₹{Number(p.price).toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="admin-product-actions">
+                    <button
+                      className="admin-action-button"
+                      title="View Product"
+                    >
+                      <Eye size={20} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteClick(p)}
+                      className="admin-action-button admin-action-button--delete"
+                      title="Delete Product"
+                      disabled={isLoading}
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
-    </section>
+
+      {/* Delete Confirmation Modal */}
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <button
+                onClick={handleCancelDelete}
+                className="modal-close-button"
+              >
+                <XCircle size={24} />
+              </button>
+            </div>
+            <div className="modal-body">
+              <p className="modal-title">Confirm Deletion</p>
+              <p className="modal-message">
+                Are you sure you want to delete{" "}
+                <span className="font-semibold">{productToDelete?.name}</span>?
+                This action cannot be undone.
+              </p>
+              <div className="modal-actions">
+                <button
+                  onClick={handleDeleteConfirm}
+                  className="button button--primary button--delete"
+                  disabled={isLoading}
+                >
+                  Yes, Delete
+                </button>
+                <button
+                  onClick={handleCancelDelete}
+                  className="button button--secondary"
+                  disabled={isLoading}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -608,6 +817,7 @@ export default function App() {
     if (!auth) return;
     const authUnsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      // Redirect from admin page if user logs out
       if (!currentUser && page === "admin") {
         setPage("shop");
       }
@@ -615,14 +825,16 @@ export default function App() {
     return () => authUnsubscribe();
   }, [page]);
 
-  // Firestore data listener
+  // Firestore data listener for shop page
+  // We'll keep the shop page data fetching here
+  // The AdminPortal component will have its own data fetching logic
+  // to prevent unnecessary re-renders of the main app when the admin page is not in view
   useEffect(() => {
     if (!db) {
       console.error("Firestore DB is not initialized.");
       setIsLoading(false);
       return;
     }
-    setIsLoading(true);
     const collectionName = "products";
     const firestorePath = `artifacts/${__app_id}/public/data/${collectionName}`;
     const q = collection(db, firestorePath);

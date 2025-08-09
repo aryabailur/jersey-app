@@ -454,7 +454,6 @@ const AdminPortal = () => {
         },
         body: JSON.stringify({ publicId }),
       });
-
       if (!cloudinaryResponse.ok) {
         const errorData = await cloudinaryResponse.json();
         throw new Error(

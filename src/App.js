@@ -446,16 +446,27 @@ const AdminPortal = () => {
 
       console.log("Extracted public ID for Cloudinary deletion:", publicId);
 
-      // Step 2: Delete from Cloudinary (requires a server-side call)
-      // This is a placeholder as direct client-side deletion is insecure.
-      setMessage(
-        "Product deleted from Firestore. Image deletion from Cloudinary would happen here via a secure backend call."
-      );
-      console.warn(
-        "Cloudinary deletion requires a secure backend endpoint. The image has NOT been deleted from Cloudinary in this demo."
+      // Step 2: Make the secure server-side call to delete the image from Cloudinary
+      const cloudinaryResponse = await fetch(
+        "http://localhost:3001/api/delete-image",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ publicId }),
+        }
       );
 
-      // Step 3: Delete from Firestore
+      if (!cloudinaryResponse.ok) {
+        const errorData = await cloudinaryResponse.json();
+        throw new Error(
+          errorData.error ||
+            "Failed to delete image from Cloudinary via server."
+        );
+      }
+
+      // Step 3: Delete from Firestore (only if Cloudinary deletion was successful)
       const docRef = doc(
         db,
         `artifacts/${__app_id}/public/data/products`,

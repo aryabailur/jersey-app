@@ -1,4 +1,5 @@
 // api/delete-image.js
+// This file is a serverless function for Vercel
 
 const cloudinary = require("cloudinary").v2;
 
@@ -10,7 +11,7 @@ cloudinary.config({
 });
 
 module.exports = async (req, res) => {
-  // Add a handler to ensure the function correctly processes POST requests
+  // Check if the request method is POST. Vercel routes all API calls to this handler.
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
   }

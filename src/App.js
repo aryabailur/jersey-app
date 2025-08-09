@@ -109,7 +109,7 @@ const useInView = (options) => {
 
 // --- Components ---
 
-const Header = ({ setPage, user }) => {
+const Header = ({ setPage, user, onSearchChange }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
@@ -170,6 +170,7 @@ const Header = ({ setPage, user }) => {
               type="text"
               placeholder="Search..."
               className="search-bar__input"
+              onChange={(e) => onSearchChange(e.target.value)}
             />
             <Search className="search-bar__icon" size={20} />
           </div>
@@ -434,15 +435,14 @@ const AdminPortal = () => {
 
     try {
       // Step 1: Extract the public_id from the Cloudinary image URL
-      const urlParts = productToDelete.imageUrl.split("/");
-      const publicIdWithExt = urlParts.pop(); // 'my-image.jpg'
-      const version = urlParts.pop(); // 'v1612345678'
-      const folderPath = urlParts
-        .slice(urlParts.indexOf("upload") + 1)
-        .join("/"); // 'my-folder'
-      const publicId = folderPath
-        ? `${folderPath}/${publicIdWithExt.split(".")[0]}`
-        : publicIdWithExt.split(".")[0];
+      const publicIdMatch = productToDelete.imageUrl.match(
+        /\/v\d+\/(.*?)(\.[a-z]+)?$/
+      );
+      const publicId = publicIdMatch ? publicIdMatch[1] : null;
+
+      if (!publicId) {
+        throw new Error("Could not extract public ID from image URL.");
+      }
 
       console.log("Extracted public ID for Cloudinary deletion:", publicId);
 
@@ -454,6 +454,7 @@ const AdminPortal = () => {
         },
         body: JSON.stringify({ publicId }),
       });
+
       if (!cloudinaryResponse.ok) {
         const errorData = await cloudinaryResponse.json();
         throw new Error(
@@ -534,7 +535,6 @@ const AdminPortal = () => {
       });
       setImageFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
-      e.target.reset();
     } catch (error) {
       console.error("Error adding product: ", error);
       setMessage(`Error: ${error.message}`);
@@ -818,6 +818,7 @@ export default function App() {
   const [jerseys, setJerseys] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Authentication state listener
   useEffect(() => {
@@ -833,9 +834,6 @@ export default function App() {
   }, [page]);
 
   // Firestore data listener for shop page
-  // We'll keep the shop page data fetching here
-  // The AdminPortal component will have its own data fetching logic
-  // to prevent unnecessary re-renders of the main app when the admin page is not in view
   useEffect(() => {
     if (!db) {
       console.error("Firestore DB is not initialized.");
@@ -864,6 +862,16 @@ export default function App() {
     return () => dataUnsubscribe();
   }, []);
 
+  const handleSearchChange = (query) => {
+    setSearchQuery(query);
+  };
+
+  const filteredJerseys = jerseys.filter(
+    (jersey) =>
+      jersey.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      jersey.team.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const renderPage = () => {
     switch (page) {
       case "admin":
@@ -878,8 +886,8 @@ export default function App() {
       default:
         return (
           <>
-            <HeroSection />
-            <FilterBar />
+            {searchQuery === "" && <HeroSection />}
+            {searchQuery === "" && <FilterBar />}
             <section className="product-section">
               <div className="container">
                 {isLoading ? (
@@ -892,9 +900,9 @@ export default function App() {
                   >
                     Loading Products...
                   </p>
-                ) : jerseys.length > 0 ? (
+                ) : filteredJerseys.length > 0 ? (
                   <div className="product-grid">
-                    {jerseys.map((jersey) => (
+                    {filteredJerseys.map((jersey) => (
                       <ProductCard key={jersey.id} jersey={jersey} />
                     ))}
                   </div>
@@ -906,7 +914,7 @@ export default function App() {
                       fontSize: "1.2rem",
                     }}
                   >
-                    No products found. Add some in the Admin page!
+                    No products found matching your search.
                   </p>
                 )}
               </div>
@@ -918,7 +926,11 @@ export default function App() {
 
   return (
     <div className="app">
-      <Header setPage={setPage} user={user} />
+      <Header
+        setPage={setPage}
+        user={user}
+        onSearchChange={handleSearchChange}
+      />
       <main>{renderPage()}</main>
       <Footer />
     </div>

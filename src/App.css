@@ -864,7 +864,7 @@ body {
   }
   .product-card__image-wrapper {
     /* This ensures the card has a nice, tall shape on mobile */
-    aspect-ratio: 3 / 4;
+    height: 320px;
   }
   .footer__grid {
     grid-template-columns: 1fr;

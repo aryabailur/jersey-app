@@ -14,6 +14,7 @@ import {
   Trash2,
   Eye,
   XCircle,
+  ArrowLeft,
 } from "lucide-react";
 import { initializeApp } from "firebase/app";
 import {
@@ -253,7 +254,7 @@ const FilterBar = () => (
   </div>
 );
 
-const ProductCard = ({ jersey }) => {
+const ProductCard = ({ jersey, onProductClick }) => {
   const [ref, isInView] = useInView({ threshold: 0.1, triggerOnce: true });
   const getTagClass = (tag) => {
     if (!tag) return "";
@@ -263,7 +264,11 @@ const ProductCard = ({ jersey }) => {
     return "product-card__tag--new";
   };
   return (
-    <div ref={ref} className={`product-card ${isInView ? "is-visible" : ""}`}>
+    <div
+      ref={ref}
+      className={`product-card ${isInView ? "is-visible" : ""}`}
+      onClick={() => onProductClick(jersey)}
+    >
       {jersey.tag && (
         <div className={`product-card__tag ${getTagClass(jersey.tag)}`}>
           {jersey.tag}
@@ -305,6 +310,55 @@ const ProductCard = ({ jersey }) => {
     </div>
   );
 };
+
+const ProductDetail = ({ product, onBack }) => (
+  <section className="product-detail-page">
+    <div className="container">
+      <div className="back-button-container">
+        <button onClick={onBack} className="button button--secondary">
+          <ArrowLeft size={20} /> Back to Shop
+        </button>
+      </div>
+      <div className="product-detail-grid">
+        <div className="product-detail-image-container">
+          <img
+            src={product.imageUrl}
+            alt={product.alt}
+            className="product-detail-image"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src =
+                "https://placehold.co/800x800/cccccc/ffffff?text=Image+Not+Found";
+            }}
+          />
+        </div>
+        <div className="product-detail-info">
+          <p className="product-detail-team">{product.team}</p>
+          <h1 className="product-detail-name">{product.name}</h1>
+          <div className="product-detail-rating">
+            <Star size={24} fill="currentColor" />
+            <span>{product.rating}</span>
+          </div>
+          <p className="product-detail-price">
+            ₹{Number(product.price).toLocaleString("en-IN")}
+          </p>
+          <div className="product-detail-actions">
+            <button className="button button--primary">Add to Cart</button>
+            <button className="button button--secondary">Buy Now</button>
+          </div>
+          <div className="product-detail-specs">
+            <p>
+              <strong>Brand:</strong> {product.brand}
+            </p>
+            <p>
+              <strong>Tag:</strong> {product.tag}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+);
 
 const Footer = () => (
   <footer className="footer">
@@ -819,6 +873,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   // Authentication state listener
   useEffect(() => {
@@ -864,6 +919,15 @@ export default function App() {
 
   const handleSearchChange = (query) => {
     setSearchQuery(query);
+    setSelectedProduct(null); // Clear selected product when searching
+  };
+
+  const handleProductClick = (product) => {
+    setSelectedProduct(product);
+  };
+
+  const handleBackToShop = () => {
+    setSelectedProduct(null);
   };
 
   const filteredJerseys = jerseys.filter(
@@ -884,6 +948,17 @@ export default function App() {
         return <LoginPage setPage={setPage} />;
       case "shop":
       default:
+        // Render detailed view if a product is selected
+        if (selectedProduct) {
+          return (
+            <ProductDetail
+              product={selectedProduct}
+              onBack={handleBackToShop}
+            />
+          );
+        }
+
+        // Otherwise, render the main shop/search page
         return (
           <>
             {searchQuery === "" && <HeroSection />}
@@ -903,7 +978,11 @@ export default function App() {
                 ) : filteredJerseys.length > 0 ? (
                   <div className="product-grid">
                     {filteredJerseys.map((jersey) => (
-                      <ProductCard key={jersey.id} jersey={jersey} />
+                      <ProductCard
+                        key={jersey.id}
+                        jersey={jersey}
+                        onProductClick={handleProductClick}
+                      />
                     ))}
                   </div>
                 ) : (

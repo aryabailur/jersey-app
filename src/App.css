@@ -94,7 +94,7 @@ body {
 
 /* 2. Header */
 .header {
-  background-color: rgba(26, 26, 26, 0.8); /* Onyx w/ transparency */
+  background-color: rgba(0, 0, 0, 0.8); /* Onyx w/ transparency */
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-color);

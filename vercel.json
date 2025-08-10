@@ -1,0 +1,13 @@
+{
+  "build": {
+    "env": {
+      "REACT_APP_CLOUDINARY_UPLOAD_PRESET": "jersey_uploads"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/delete-image",
+      "destination": "/api/delete-image.js"
+    }
+  ]
+}

@@ -414,7 +414,7 @@ body {
   color: var(--accent-text-color);
 }
 .product-card__image-wrapper {
-  height: 280px;
+  height: 340px;
   overflow: hidden;
 }
 .product-card__image {

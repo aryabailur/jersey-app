@@ -862,6 +862,10 @@ body {
     flex-direction: column;
     align-items: stretch;
   }
+  .product-card__image-wrapper {
+    /* This ensures the card has a nice, tall shape on mobile */
+    aspect-ratio: 3 / 4;
+  }
   .footer__grid {
     grid-template-columns: 1fr;
   }

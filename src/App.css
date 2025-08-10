@@ -94,10 +94,10 @@ body {
 
 /* 2. Header */
 .header {
-  background-color: rgba(0, 0, 0, 0.8); /* Onyx w/ transparency */
+  background-color: rgba(0, 0, 0, 0.6); /* Onyx w/ transparency */
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border-color);
+  /*border-bottom: 1px solid var(--border-color);*/
   position: sticky;
   top: 0;
   z-index: 50;
@@ -220,7 +220,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  text-align: center;
+  text-align: left;
   overflow: hidden;
 }
 .hero__bg {
@@ -242,6 +242,8 @@ body {
   position: relative;
   z-index: 2;
   padding: 1rem;
+  margin: 0;
+  text-align: left;
   animation: fadeIn 1s ease-out;
 }
 .hero__title {
@@ -250,11 +252,13 @@ body {
   letter-spacing: -2px;
   text-transform: uppercase;
   margin: 0 0 1rem;
+  max-width: 40%;
 }
 .hero__subtitle {
+  justify-content: left;
   font-size: 1.25rem;
   max-width: 600px;
-  margin: 0 auto 2rem;
+  margin: 0 0 2rem;
   font-weight: 300;
   opacity: 0.9;
 }

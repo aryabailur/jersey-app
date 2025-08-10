@@ -214,7 +214,7 @@ const HeroSection = () => (
   <section className="hero">
     <div className="hero__bg"></div>
     <div className="hero__content">
-      <h1 className="hero__title">Wear Your Allegiance</h1>
+      <h1 className="hero__title">Gear Up. Stand Out. Play Loud.</h1>
       <p className="hero__subtitle">
         The official 2024/25 kits have landed. Find your team's colours and
         support them in style.

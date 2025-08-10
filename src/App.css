@@ -226,7 +226,7 @@ body {
 .hero__bg {
   position: absolute;
   inset: 0;
-  background-image: url("/public/assets/hero-bg.jpeg");
+  background-image: url("/public/assets/Hero-bg-new.png");
   background-size: cover;
   background-position: center;
   animation: zoom 20s ease-in-out infinite alternate;

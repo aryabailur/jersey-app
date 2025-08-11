@@ -36,9 +36,9 @@ export default function App() {
         <Header user={user} onSearchChange={setSearchQuery} />
         <main>
           <Routes>
-            <Route path="/" element={<HomePage searchQuery={searchQuery} />} />
+            <Route path="/" element={<HomePage searchQuery={searchQuery} user={user} />} />
             <Route path="/cart" element={<CartPage />} />
-            <Route path="/login" element={<LoginPage />} />
+            <Route path="/login" element={!user ? <LoginPage /> : <Navigate to="/" />} />
             <Route 
               path="/admin" 
               element={user && ADMIN_UIDS.includes(user.uid) ? <AdminPage /> : <Navigate to="/login" />} 

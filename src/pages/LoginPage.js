@@ -16,7 +16,7 @@ export default function LoginPage() {
     setError("");
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/admin"); // Redirect to admin page on successful login
+      navigate("/"); // Redirect to admin page on successful login
     } catch (err) {
       setError("Failed to log in. Please check your credentials.");
     }

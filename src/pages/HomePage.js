@@ -8,7 +8,7 @@ import FilterBar from '../components/FilterBar';
 import ProductCard from '../components/ProductCard';
 import ProductDetail from '../components/ProductDetail';
 
-export default function HomePage({ searchQuery }) {
+export default function HomePage({ searchQuery, user }) {
   const [jerseys, setJerseys] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [sortBy, setSortBy] = useState("popularity");

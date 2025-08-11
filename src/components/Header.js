@@ -15,7 +15,8 @@ export default function Header({ user, onSearchChange }) {
   const handleLogout = () => {
     signOut(auth);
   };
-
+  console.log(process.env.REACT_APP_ADMIN_UID_1);
+  console.log(process.env.REACT_APP_ADMIN_UID_2);
   return (
     <header className="header">
       <div className="container header__container">
@@ -23,7 +24,8 @@ export default function Header({ user, onSearchChange }) {
         
         <nav className={`header__nav ${isMenuOpen ? "is-open" : ""}`}>
           <NavLink to="/" className="header__nav-link" onClick={() => setIsMenuOpen(false)}>Home</NavLink>
-          {user && ADMIN_UIDS.includes(user.uid) && (
+          
+          {user && user.uid && ADMIN_UIDS.includes(user.uid) && (
             <NavLink to="/admin" className="header__nav-link admin-link" onClick={() => setIsMenuOpen(false)}>Admin</NavLink>
           )}
         </nav>

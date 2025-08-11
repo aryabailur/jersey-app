@@ -4,7 +4,7 @@ import { db } from '../firebase/config';
 import { UploadCloud, PlusCircle, Trash2, Eye, XCircle } from 'lucide-react';
 
 // Make sure you have these in your main .env file for the frontend
-const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME; // CORRECTED LINE
 const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
 const __app_id = "jerseyhub";
 
@@ -28,6 +28,7 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, []);
 
+  // Handler Functions
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setProduct((prev) => ({ ...prev, [name]: value }));
@@ -59,7 +60,6 @@ export default function AdminPage() {
       const publicId = publicIdMatch ? publicIdMatch[1] : null;
 
       if (publicId) {
-        // THIS IS THE CORRECTED LINE 👇
         await fetch("http://localhost:3001/api/delete-image", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -122,60 +122,7 @@ export default function AdminPage() {
 
   return (
     <div className="admin-portal">
-      <div className="container">
-        <section>
-          <h2 className="section-title">Admin Portal</h2>
-          <p className="section-subtitle">Add a new jersey to the store.</p>
-          <form onSubmit={handleSubmit} className="admin-form" autoComplete="off">
-            <div className="form-grid">
-              <input type="text" name="name" placeholder="Jersey Name" value={product.name} onChange={handleInputChange} required />
-              <input type="text" name="team" placeholder="Team" value={product.team} onChange={handleInputChange} required />
-              <input type="number" name="price" placeholder="Price" value={product.price} onChange={handleInputChange} required />
-              <input type="number" step="0.1" name="rating" placeholder="Rating (e.g., 4.5)" value={product.rating} onChange={handleInputChange} />
-              <input type="text" name="brand" placeholder="Brand (e.g., Adidas)" value={product.brand} onChange={handleInputChange} />
-              <input type="text" name="tag" placeholder="Tag (e.g., New Arrival)" value={product.tag} onChange={handleInputChange} />
-              <input type="text" name="alt" placeholder="Image Alt Text" value={product.alt} onChange={handleInputChange} required />
-            </div>
-            <div className="file-upload-wrapper">
-              <label htmlFor="file-upload" className="file-upload-label">
-                <UploadCloud size={24} />
-                <span>{imageFile ? imageFile.name : "Upload Jersey Image"}</span>
-              </label>
-              <input id="file-upload" type="file" onChange={handleFileChange} accept="image/*" required ref={fileInputRef} style={{ display: 'none' }} />
-            </div>
-            <button type="submit" className="button button--primary admin-submit-button" disabled={isLoading}>
-              {isLoading ? "Processing..." : <><PlusCircle size={20} /> Add Product</>}
-            </button>
-            {message && <p className={`form-message ${message.startsWith("Error") ? "form-message--error" : ""}`}>{message}</p>}
-          </form>
-        </section>
-
-        <section className="admin-product-list-section">
-          <h2 className="section-title">Current Products</h2>
-          {products.length > 0 && (
-            <div className="admin-product-grid">
-              {products.map((p) => (
-                <div key={p.id} className="admin-product-card">
-                  <img src={p.imageUrl} alt={p.alt} className="admin-product-image" />
-                  <div className="admin-product-info">
-                    <p className="admin-product-name">{p.name} - {p.team}</p>
-                    <p className="admin-product-price">₹{Number(p.price).toFixed(2)}</p>
-                  </div>
-                  <div className="admin-product-actions">
-                    <button className="admin-action-button" title="View Product"><Eye size={20} /></button>
-                    <button onClick={() => handleDeleteClick(p)} className="admin-action-button admin-action-button--delete" title="Delete Product" disabled={isLoading}><Trash2 size={20} /></button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
-      {isModalOpen && (
-        <div className="modal-overlay">
-            {/* ... modal JSX ... */}
-        </div>
-      )}
+      {/* ... The rest of your JSX ... */}
     </div>
   );
 }

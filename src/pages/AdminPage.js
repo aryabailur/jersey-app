@@ -4,7 +4,7 @@ import { db } from '../firebase/config';
 import { UploadCloud, PlusCircle, Trash2, Eye, XCircle } from 'lucide-react';
 
 // Make sure you have these in your main .env file for the frontend
-const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
 const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
 const __app_id = "jerseyhub";
 

@@ -877,9 +877,7 @@ body {
     background-position: 75% center;
   }
 
-  .header__actions .search-bar {
-    display: none;
-  }
+ 
   .hero__title {
     min-width: 60%;
     font-size: 2.5rem;

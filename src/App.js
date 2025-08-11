@@ -1,22 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './firebase/config';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase/config";
+import "./App.css";
 
 // Import Components
-import Header from './components/Header';
-import Footer from './components/Footer';
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 // Import Pages
-import HomePage from './pages/HomePage';
-import AdminPage from './pages/AdminPage';
-import LoginPage from './pages/LoginPage';
-import CartPage from './pages/CartPage';
+import HomePage from "./pages/HomePage";
+import AdminPage from "./pages/AdminPage";
+import LoginPage from "./pages/LoginPage";
+import CartPage from "./pages/CartPage";
 
 const ADMIN_UIDS = [
   process.env.REACT_APP_ADMIN_UID_1,
-  process.env.REACT_APP_ADMIN_UID_2
+  process.env.REACT_APP_ADMIN_UID_2,
 ];
 
 export default function App() {
@@ -36,12 +41,24 @@ export default function App() {
         <Header user={user} onSearchChange={setSearchQuery} />
         <main>
           <Routes>
-            <Route path="/" element={<HomePage searchQuery={searchQuery} user={user} />} />
+            <Route
+              path="/"
+              element={<HomePage searchQuery={searchQuery} user={user} />}
+            />
             <Route path="/cart" element={<CartPage />} />
-            <Route path="/login" element={!user ? <LoginPage /> : <Navigate to="/" />} />
-            <Route 
-              path="/admin" 
-              element={user && ADMIN_UIDS.includes(user.uid) ? <AdminPage /> : <Navigate to="/login" />} 
+            <Route
+              path="/login"
+              element={!user ? <LoginPage /> : <Navigate to="/" />}
+            />
+            <Route
+              path="/admin"
+              element={
+                user && ADMIN_UIDS.includes(user.uid) ? (
+                  <AdminPage />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
             />
           </Routes>
         </main>

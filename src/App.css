@@ -490,7 +490,7 @@ body {
   gap: 0.5rem;
   width: 100%;
   transform: translateY(20px);
-  opacity: 0;
+  opacity: 0.6;
   transition: all 0.4s ease;
 }
 .product-card:hover .product-card__overlay-buttons {
@@ -501,7 +501,26 @@ body {
   width: 100%;
   padding: 0.75rem;
 }
+/* 5b. Product Detail Page Styles */
+.product-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Creates a two-column layout */
+  gap: 3rem;
+  align-items: start;
+  padding: 2rem 0;
+}
 
+.product-detail-image-container {
+  width: 100%;
+  border-radius: 0.75rem;
+  overflow: hidden; /* Ensures image respects the container's rounded corners */
+}
+
+.product-detail-image {
+  width: 100%; /* Makes the image fit the container's width */
+  height: auto; /* Maintains the correct aspect ratio to prevent stretching */
+  display: block; /* Removes any extra space below the image */
+}
 /* 6. Admin & Login Pages */
 .admin-portal,
 .login-page {
@@ -814,6 +833,10 @@ body {
 @media (max-width: 1024px) {
   .product-grid {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+  .product-detail-grid {
+    grid-template-columns: 1fr; /* Stacks to a single column on mobile */
+    gap: 2rem;
   }
   .footer__grid {
     grid-template-columns: repeat(2, 1fr);

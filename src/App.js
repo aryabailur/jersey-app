@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
+import { Toaster } from "react-hot-toast";
+
+// ... your other imports like React, Router, etc.
 import { auth } from "./firebase/config";
 import "./App.css";
 
@@ -21,6 +29,9 @@ import MyOrders from "./pages/account/MyOrders";
 import ManageAddresses from "./pages/account/ManageAddresses";
 import AccountSettings from "./pages/account/AccountSettings";
 
+//import context pages
+import { CartProvider } from "./context/CartContext";
+
 const ADMIN_UIDS = [
   process.env.REACT_APP_ADMIN_UID_1,
   process.env.REACT_APP_ADMIN_UID_2,
@@ -38,7 +49,10 @@ const ProtectedRoute = ({ user, children }) => {
 const AccountDashboard = () => (
   <div className="account-content-wrapper">
     <h1 className="account-content__title">Dashboard</h1>
-    <p>Welcome to your account dashboard! From here, you can manage your orders, addresses, and account settings.</p>
+    <p>
+      Welcome to your account dashboard! From here, you can manage your orders,
+      addresses, and account settings.
+    </p>
   </div>
 );
 
@@ -54,32 +68,69 @@ export default function App() {
   }, []);
 
   return (
-    <Router>
-      <div className="app">
-        <Header user={user} />
-        <main>
-          <Routes>
-            <Route path="/" element={<HomePage user={user} />} />
-            <Route path="/shop" element={<ShopPage searchQuery={searchQuery} onSearchChange={setSearchQuery} user={user} />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/login" element={!user ? <LoginPage /> : <Navigate to="/" />} />
-            <Route path="/admin" element={ user && ADMIN_UIDS.includes(user.uid) ? <AdminPage /> : <Navigate to="/login" /> } />
+    <CartProvider>
+      {/* ✅ ADDED: Place the Toaster component here */}
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          style: {
+            background: "#333",
+            color: "#fff",
+          },
+        }}
+      />
+      <Router>
+        <div className="app">
+          <Header user={user} />
+          <main>
+            <Routes>
+              <Route path="/" element={<HomePage user={user} />} />
+              <Route
+                path="/shop"
+                element={
+                  <ShopPage
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    user={user}
+                  />
+                }
+              />
+              <Route path="/cart" element={<CartPage />} />
+              <Route
+                path="/login"
+                element={!user ? <LoginPage /> : <Navigate to="/" />}
+              />
+              <Route
+                path="/admin"
+                element={
+                  user && ADMIN_UIDS.includes(user.uid) ? (
+                    <AdminPage />
+                  ) : (
+                    <Navigate to="/login" />
+                  )
+                }
+              />
 
-            {/* NESTED ACCOUNT ROUTES */}
-            <Route 
-              path="/account" 
-              element={<ProtectedRoute user={user}><AccountPage /></ProtectedRoute>}
-            >
-              <Route index element={<AccountDashboard />} />
-              <Route path="orders" element={<MyOrders />} />
-              {/* <Route path="orders/:orderId" element={<OrderDetails />} /> */}
-              <Route path="addresses" element={<ManageAddresses />} />
-              <Route path="settings" element={<AccountSettings />} />
-            </Route>
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </Router>
+              {/* NESTED ACCOUNT ROUTES */}
+              <Route
+                path="/account"
+                element={
+                  <ProtectedRoute user={user}>
+                    <AccountPage />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<AccountDashboard />} />
+                <Route path="orders" element={<MyOrders />} />
+                {/* <Route path="orders/:orderId" element={<OrderDetails />} /> */}
+                <Route path="addresses" element={<ManageAddresses />} />
+                <Route path="settings" element={<AccountSettings />} />
+              </Route>
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </Router>
+    </CartProvider>
   );
 }

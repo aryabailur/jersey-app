@@ -1,59 +1,59 @@
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { signOut } from 'firebase/auth';
-import { auth } from '../firebase/config';
-import { Search, ShoppingCart, User, Menu, X } from 'lucide-react';
+import React, { useState } from "react";
+import { Link, NavLink } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase/config";
+import "../App.css"; 
+import { Search, ShoppingCart, User, Menu, X } from "lucide-react";
 
-const ADMIN_UIDS = [
-  process.env.REACT_APP_ADMIN_UID_1,
-  process.env.REACT_APP_ADMIN_UID_2
-];
-
-export default function Header({ user, onSearchChange }) {
+export default function Header({ user }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    signOut(auth);
-  };
-  console.log(process.env.REACT_APP_ADMIN_UID_1);
-  console.log(process.env.REACT_APP_ADMIN_UID_2);
+  // Logout function ab yaha use nahi hoga, isliye isko hata sakte hain
+  // const handleLogout = () => {
+  //   signOut(auth);
+  //   setIsMenuOpen(false);
+  // };
+
   return (
     <header className="header">
       <div className="container header__container">
-        <NavLink to="/" className="header__logo">JERSEY<span className="header__logo--red">HUB</span></NavLink>
-        
+        <NavLink to="/" className="header__logo">
+          JERSEY<span className="header__logo--red">HUB</span>
+        </NavLink>
+
         <nav className={`header__nav ${isMenuOpen ? "is-open" : ""}`}>
-          <NavLink to="/" className="header__nav-link" onClick={() => setIsMenuOpen(false)}>Home</NavLink>
-          
-          {user && user.uid && ADMIN_UIDS.includes(user.uid) && (
-            <NavLink to="/admin" className="header__nav-link admin-link" onClick={() => setIsMenuOpen(false)}>Admin</NavLink>
-          )}
+            <NavLink to="/" className="header__nav-link" onClick={() => setIsMenuOpen(false)}>Home</NavLink>
+            <NavLink to="/shop" className="header__nav-link" onClick={() => setIsMenuOpen(false)}>Shop</NavLink>
         </nav>
 
         <div className="header__actions">
-          {/* 👇 THIS IS THE SEARCH BAR CODE THAT WAS MISSING */}
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="search-bar__input"
-              onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-            />
-            <Search className="search-bar__icon" size={20} />
-          </div>
+          <Link to="/shop" className="header__icon-link">
+            <Search size={24} />
+          </Link>
 
+          {/* ✅ UPDATED LOGIC HERE */}
           {user ? (
-            <button onClick={handleLogout} className="button button--secondary button--small">Logout</button>
+            // Agar user logged in hai, toh account page ka link dikhao
+            <NavLink to="/account" className="header__icon-link">
+              <User size={24} />
+            </NavLink>
           ) : (
-            <NavLink to="/login" className="header__icon-link"><User size={24} /></NavLink>
+            // Agar user logged in nahi hai, toh login page ka link dikhao
+            <NavLink to="/login" className="header__icon-link">
+              <User size={24} />
+            </NavLink>
           )}
 
           <NavLink to="/cart" className="header__icon-link cart-link">
             <ShoppingCart size={24} />
-            <span className="cart-link__badge">3</span>
+            {/* Your cart badge logic here */}
           </NavLink>
 
-          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="header__menu-toggle">
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="header__menu-toggle"
+            aria-label="Toggle menu"
+          >
             {isMenuOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
         </div>

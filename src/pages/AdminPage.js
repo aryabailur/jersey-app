@@ -1,22 +1,32 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { collection, addDoc, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { db } from '../firebase/config'; // ✅ FIXED: Corrected path
+import '../App.css'; // ✅ FIXED: Corrected path
 import { UploadCloud, PlusCircle, Trash2, Eye, XCircle } from 'lucide-react';
 
+// Environment variables for Cloudinary
 const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
-const __app_id = "jerseyhub";
+const __app_id = "jerseyhub"; // Your App ID for Firebase
 
 export default function AdminPage() {
+  // State for the form fields
   const [product, setProduct] = useState({ name: "", team: "", price: "", rating: "", brand: "", tag: "", alt: "" });
+  // State to hold the list of all products from Firebase
   const [products, setProducts] = useState([]);
+  // State for the selected image file
   const [imageFile, setImageFile] = useState(null);
+  // State to handle loading states for buttons
   const [isLoading, setIsLoading] = useState(false);
+  // State to show success or error messages to the user
   const [message, setMessage] = useState("");
+  // Ref to clear the file input after submission
   const fileInputRef = useRef(null);
+  // State for the delete confirmation modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
 
+  // useEffect to fetch products from Firebase in real-time
   useEffect(() => {
     const firestorePath = `artifacts/${__app_id}/public/data/products`;
     const productsCollectionRef = collection(db, firestorePath);
@@ -24,9 +34,11 @@ export default function AdminPage() {
       const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setProducts(productsData);
     });
+    // Cleanup the listener when the component unmounts
     return () => unsubscribe();
   }, []);
 
+  // Handlers for form inputs and file selection
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setProduct((prev) => ({ ...prev, [name]: value }));
@@ -38,6 +50,7 @@ export default function AdminPage() {
     }
   };
 
+  // Handlers for the delete confirmation modal
   const handleDeleteClick = (product) => {
     setProductToDelete(product);
     setIsModalOpen(true);
@@ -48,12 +61,15 @@ export default function AdminPage() {
     setProductToDelete(null);
   };
 
+  // Main logic to delete a product
   const handleDeleteConfirm = async () => {
     if (!productToDelete) return;
     setIsLoading(true);
     setMessage(`Deleting ${productToDelete.name}...`);
     setIsModalOpen(false);
     try {
+      // IMPORTANT: This part requires a running backend server on localhost:3001
+      // to securely delete the image from Cloudinary.
       const publicIdMatch = productToDelete.imageUrl.match(/\/v\d+\/(.*?)(\.[a-z]+)?$/);
       const publicId = publicIdMatch ? publicIdMatch[1] : null;
 
@@ -65,6 +81,7 @@ export default function AdminPage() {
         });
       }
 
+      // Delete the product document from Firebase
       const docRef = doc(db, `artifacts/${__app_id}/public/data/products`, productToDelete.id);
       await deleteDoc(docRef);
       setMessage("Product deleted successfully!");
@@ -77,6 +94,7 @@ export default function AdminPage() {
     }
   };
 
+  // Main logic to add a new product
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!imageFile || !product.name || !product.team || !product.alt) {
@@ -86,6 +104,7 @@ export default function AdminPage() {
     setIsLoading(true);
     setMessage("Uploading image...");
     try {
+      // 1. Upload image to Cloudinary
       const formData = new FormData();
       formData.append("file", imageFile);
       formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
@@ -95,6 +114,7 @@ export default function AdminPage() {
       const data = await response.json();
       setMessage("Image uploaded! Saving product...");
 
+      // 2. Prepare product data to save in Firebase
       const productData = {
         ...product,
         price: parseFloat(product.price),
@@ -103,9 +123,11 @@ export default function AdminPage() {
         createdAt: new Date(),
       };
 
+      // 3. Save product data to Firebase
       const firestorePath = `artifacts/${__app_id}/public/data/products`;
       await addDoc(collection(db, firestorePath), productData);
 
+      // 4. Reset form and show success message
       setMessage("Product added successfully!");
       setProduct({ name: "", team: "", price: "", rating: "", brand: "", tag: "", alt: "" });
       setImageFile(null);

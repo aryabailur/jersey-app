@@ -12,9 +12,20 @@
     "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
     "Helvetica Neue", sans-serif;
 }
+
 html {
   scroll-behavior: smooth;
+  box-sizing: border-box; /* ✅ ADDED - More predictable layouts */
+  overflow-x: hidden; /* ✅ ADDED - Prevents horizontal scroll */
 }
+
+/* ✅ ADDED - Inherit box-sizing for all elements */
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
 body {
   margin: 0;
   font-family: var(--font-family);
@@ -22,7 +33,10 @@ body {
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  width: 100%; /* ✅ ADDED - Ensures body takes full width */
+  overflow-x: hidden; /* ✅ ADDED - Safeguard for the body */
 }
+
 .app {
   background-color: var(--bg-color);
 }
@@ -432,7 +446,12 @@ body {
   left: 0;
   right: 0;
   padding: 1.25rem;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.7) 50%, transparent 100%);
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.7) 50%,
+    transparent 100%
+  );
   color: #ffffff;
 }
 .product-card__team {
@@ -869,7 +888,7 @@ body {
     padding-right: 1rem;
   }
   .hero-section {
-     background-repeat: no-repeat;
+    background-repeat: no-repeat;
     background-size: auto 100%; /* height fit, width natural */
     background-position: right center;
   }
@@ -877,7 +896,6 @@ body {
     background-position: 75% center;
   }
 
- 
   .hero__title {
     min-width: 60%;
     font-size: 2.5rem;

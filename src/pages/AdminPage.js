@@ -1,17 +1,31 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { collection, addDoc, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
-import { db } from '../firebase/config'; // ✅ FIXED: Corrected path
-import '../App.css'; // ✅ FIXED: Corrected path
-import { UploadCloud, PlusCircle, Trash2, Eye, XCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  doc,
+  deleteDoc,
+} from "firebase/firestore";
+import { db } from "../firebase/config"; // ✅ FIXED: Corrected path
+import "../App.css"; // ✅ FIXED: Corrected path
+import { UploadCloud, PlusCircle, Trash2, Eye, XCircle } from "lucide-react";
 
 // Environment variables for Cloudinary
-const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
 const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
 const __app_id = "jerseyhub"; // Your App ID for Firebase
 
 export default function AdminPage() {
   // State for the form fields
-  const [product, setProduct] = useState({ name: "", team: "", price: "", rating: "", brand: "", tag: "", alt: "" });
+  const [product, setProduct] = useState({
+    name: "",
+    team: "",
+    price: "",
+    rating: "",
+    brand: "",
+    tag: "",
+    alt: "",
+  });
   // State to hold the list of all products from Firebase
   const [products, setProducts] = useState([]);
   // State for the selected image file
@@ -31,7 +45,10 @@ export default function AdminPage() {
     const firestorePath = `artifacts/${__app_id}/public/data/products`;
     const productsCollectionRef = collection(db, firestorePath);
     const unsubscribe = onSnapshot(productsCollectionRef, (snapshot) => {
-      const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const productsData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
       setProducts(productsData);
     });
     // Cleanup the listener when the component unmounts
@@ -70,7 +87,9 @@ export default function AdminPage() {
     try {
       // IMPORTANT: This part requires a running backend server on localhost:3001
       // to securely delete the image from Cloudinary.
-      const publicIdMatch = productToDelete.imageUrl.match(/\/v\d+\/(.*?)(\.[a-z]+)?$/);
+      const publicIdMatch = productToDelete.imageUrl.match(
+        /\/v\d+\/(.*?)(\.[a-z]+)?$/
+      );
       const publicId = publicIdMatch ? publicIdMatch[1] : null;
 
       if (publicId) {
@@ -82,7 +101,11 @@ export default function AdminPage() {
       }
 
       // Delete the product document from Firebase
-      const docRef = doc(db, `artifacts/${__app_id}/public/data/products`, productToDelete.id);
+      const docRef = doc(
+        db,
+        `artifacts/${__app_id}/public/data/products`,
+        productToDelete.id
+      );
       await deleteDoc(docRef);
       setMessage("Product deleted successfully!");
     } catch (error) {
@@ -108,9 +131,12 @@ export default function AdminPage() {
       const formData = new FormData();
       formData.append("file", imageFile);
       formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-      const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: formData });
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        { method: "POST", body: formData }
+      );
       if (!response.ok) throw new Error("Image upload failed.");
-      
+
       const data = await response.json();
       setMessage("Image uploaded! Saving product...");
 
@@ -129,7 +155,15 @@ export default function AdminPage() {
 
       // 4. Reset form and show success message
       setMessage("Product added successfully!");
-      setProduct({ name: "", team: "", price: "", rating: "", brand: "", tag: "", alt: "" });
+      setProduct({
+        name: "",
+        team: "",
+        price: "",
+        rating: "",
+        brand: "",
+        tag: "",
+        alt: "",
+      });
       setImageFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
@@ -146,27 +180,106 @@ export default function AdminPage() {
         <section>
           <h2 className="section-title">Admin Portal</h2>
           <p className="section-subtitle">Add a new jersey to the store.</p>
-          <form onSubmit={handleSubmit} className="admin-form" autoComplete="off">
+          <form
+            onSubmit={handleSubmit}
+            className="admin-form"
+            autoComplete="off"
+          >
             <div className="form-grid">
-              <input type="text" name="name" placeholder="Jersey Name" value={product.name} onChange={handleInputChange} required />
-              <input type="text" name="team" placeholder="Team" value={product.team} onChange={handleInputChange} required />
-              <input type="number" name="price" placeholder="Price" value={product.price} onChange={handleInputChange} required />
-              <input type="number" step="0.1" name="rating" placeholder="Rating (e.g., 4.5)" value={product.rating} onChange={handleInputChange} />
-              <input type="text" name="brand" placeholder="Brand (e.g., Adidas)" value={product.brand} onChange={handleInputChange} />
-              <input type="text" name="tag" placeholder="Tag (e.g., New Arrival)" value={product.tag} onChange={handleInputChange} />
-              <input type="text" name="alt" placeholder="Image Alt Text" value={product.alt} onChange={handleInputChange} required />
+              <input
+                type="text"
+                name="name"
+                placeholder="Jersey Name"
+                value={product.name}
+                onChange={handleInputChange}
+                required
+              />
+              <input
+                type="text"
+                name="team"
+                placeholder="Team"
+                value={product.team}
+                onChange={handleInputChange}
+                required
+              />
+              <input
+                type="number"
+                name="price"
+                placeholder="Price"
+                value={product.price}
+                onChange={handleInputChange}
+                required
+              />
+              <input
+                type="number"
+                step="0.1"
+                name="rating"
+                placeholder="Rating (e.g., 4.5)"
+                value={product.rating}
+                onChange={handleInputChange}
+              />
+              <input
+                type="text"
+                name="brand"
+                placeholder="Brand (e.g., Adidas)"
+                value={product.brand}
+                onChange={handleInputChange}
+              />
+              <input
+                type="text"
+                name="tag"
+                placeholder="Tag (e.g., New Arrival)"
+                value={product.tag}
+                onChange={handleInputChange}
+              />
+              <input
+                type="text"
+                name="alt"
+                placeholder="Image Alt Text"
+                value={product.alt}
+                onChange={handleInputChange}
+                required
+              />
             </div>
             <div className="file-upload-wrapper">
               <label htmlFor="file-upload" className="file-upload-label">
                 <UploadCloud size={24} />
-                <span>{imageFile ? imageFile.name : "Upload Jersey Image"}</span>
+                <span>
+                  {imageFile ? imageFile.name : "Upload Jersey Image"}
+                </span>
               </label>
-              <input id="file-upload" type="file" onChange={handleFileChange} accept="image/*" required ref={fileInputRef} style={{ display: 'none' }} />
+              <input
+                id="file-upload"
+                type="file"
+                onChange={handleFileChange}
+                accept="image/*"
+                required
+                ref={fileInputRef}
+                style={{ display: "none" }}
+              />
             </div>
-            <button type="submit" className="button button--primary admin-submit-button" disabled={isLoading}>
-              {isLoading ? "Processing..." : <><PlusCircle size={20} /> Add Product</>}
+            <button
+              type="submit"
+              className="button button--primary admin-submit-button"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                "Processing..."
+              ) : (
+                <>
+                  <PlusCircle size={20} /> Add Product
+                </>
+              )}
             </button>
-            {message && <p className={`form-message ${message.startsWith("Error") ? "form-message--error" : ""}`}>{message}</p>}
+            {message && (
+              <p
+                className={`form-message ${
+                  message.startsWith("Error") ? "form-message--error" : ""
+                }`}
+              >
+                {message}
+              </p>
+            )}
           </form>
         </section>
 
@@ -178,14 +291,34 @@ export default function AdminPage() {
             <div className="admin-product-grid">
               {products.map((p) => (
                 <div key={p.id} className="admin-product-card">
-                  <img src={p.imageUrl} alt={p.alt} className="admin-product-image" />
+                  <img
+                    src={p.imageUrl}
+                    alt={p.alt}
+                    className="admin-product-image"
+                  />
                   <div className="admin-product-info">
-                    <p className="admin-product-name">{p.name} - {p.team}</p>
-                    <p className="admin-product-price">₹{Number(p.price).toFixed(2)}</p>
+                    <p className="admin-product-name">
+                      {p.name} - {p.team}
+                    </p>
+                    <p className="admin-product-price">
+                      ₹{Number(p.price).toFixed(2)}
+                    </p>
                   </div>
                   <div className="admin-product-actions">
-                    <button className="admin-action-button" title="View Product"><Eye size={20} /></button>
-                    <button onClick={() => handleDeleteClick(p)} className="admin-action-button admin-action-button--delete" title="Delete Product" disabled={isLoading}><Trash2 size={20} /></button>
+                    <button
+                      className="admin-action-button"
+                      title="View Product"
+                    >
+                      <Eye size={20} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteClick(p)}
+                      className="admin-action-button admin-action-button--delete"
+                      title="Delete Product"
+                      disabled={isLoading}
+                    >
+                      <Trash2 size={20} />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -198,16 +331,35 @@ export default function AdminPage() {
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-header">
-              <button onClick={handleCancelDelete} className="modal-close-button"><XCircle size={24} /></button>
+              <button
+                onClick={handleCancelDelete}
+                className="modal-close-button"
+              >
+                <XCircle size={24} />
+              </button>
             </div>
             <div className="modal-body">
               <p className="modal-title">Confirm Deletion</p>
               <p className="modal-message">
-                Are you sure you want to delete <span className="font-semibold">{productToDelete?.name}</span>? This action cannot be undone.
+                Are you sure you want to delete{" "}
+                <span className="font-semibold">{productToDelete?.name}</span>?
+                This action cannot be undone.
               </p>
               <div className="modal-actions">
-                <button onClick={handleDeleteConfirm} className="button button--primary button--delete" disabled={isLoading}>Yes, Delete</button>
-                <button onClick={handleCancelDelete} className="button button--secondary" disabled={isLoading}>Cancel</button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  className="button button--primary button--delete"
+                  disabled={isLoading}
+                >
+                  Yes, Delete
+                </button>
+                <button
+                  onClick={handleCancelDelete}
+                  className="button button--secondary"
+                  disabled={isLoading}
+                >
+                  Cancel
+                </button>
               </div>
             </div>
           </div>

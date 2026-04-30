@@ -225,84 +225,114 @@ body {
   z-index: 100;
 }
 
-/* 3. Hero Section */
-.hero {
+/* 3. Hero Section - Scroll Animation */
+.hero-scroll-container {
   position: relative;
-  height: 85vh;
-  min-height: 500px;
-  color: #ffffff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: left;
-  overflow: hidden;
+  height: 300vh; /* Creates scrollable space */
+  background-color: var(--bg-color);
 }
-.hero__bg {
+.hero-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-bg-dark {
   position: absolute;
   inset: 0;
   background-image: url("/public/assets/Hero-bg-new.WebP");
   background-size: cover;
   background-position: center;
-  animation: zoom 20s ease-in-out infinite alternate;
+  z-index: 0;
 }
-.hero::before {
+.hero-bg-dark::after {
   content: "";
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  z-index: 1;
+  background: linear-gradient(180deg, rgba(26, 26, 26, 0.4) 0%, rgba(26, 26, 26, 0.9) 100%);
 }
-.hero__content {
-  position: relative;
-  z-index: 2;
-  padding: 1rem;
-  margin: 0;
-  text-align: left;
-  animation: fadeIn 1s ease-out;
+.hero-text-content {
+  position: absolute;
+  z-index: 10;
+  text-align: center;
+  pointer-events: none; /* Let clicks pass through to potential 3D objects */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 0 2rem;
 }
-.hero__title {
-  font-size: 4.5rem;
+.hero-title-main {
+  font-size: clamp(3.5rem, 8vw, 7rem);
   font-weight: 900;
-  letter-spacing: -2px;
+  line-height: 1.1;
   text-transform: uppercase;
-  margin: 0 0 1rem;
-  max-width: 40%;
+  margin: 0 0 1.5rem;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  text-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
-.hero__subtitle {
-  justify-content: left;
-  font-size: 1.25rem;
+.text-accent {
+  color: var(--primary-color);
+  display: block;
+}
+.hero-subtitle-main {
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
   max-width: 600px;
-  margin: 0 0 2rem;
-  font-weight: 300;
-  opacity: 0.9;
+  color: #e0e0e0;
+  margin: 0 0 2.5rem;
+  font-weight: 400;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
-.hero__fade {
+.hero-btn-main {
+  pointer-events: auto; /* Re-enable clicks for the button */
+  font-size: 1.1rem;
+  padding: 1rem 3rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.hero-jersey-wrapper {
+  position: absolute;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+}
+.hero-jersey-img {
+  max-height: 80vh;
+  max-width: 90vw;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 50px rgba(0,0,0,0.8));
+  /* Ensure transform origin is center for rotation */
+  transform-origin: center center;
+}
+.hero-jersey-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40vw;
+  height: 40vw;
+  background: radial-gradient(circle, rgba(190, 242, 2, 0.15) 0%, rgba(0,0,0,0) 70%);
+  z-index: -1;
+  pointer-events: none;
+}
+.hero-fade-bottom {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 150px;
-  background: linear-gradient(to bottom, transparent, var(--bg-color));
-  z-index: 2;
-}
-
-@keyframes zoom {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.1);
-  }
-}
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  height: 20vh;
+  background: linear-gradient(to top, var(--bg-color), transparent);
+  z-index: 15;
+  pointer-events: none;
 }
 
 /* 4. Filter Bar */
@@ -386,10 +416,12 @@ body {
   gap: 2rem;
 }
 .product-card {
-  background-color: var(--card-color);
-  border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
-  box-shadow: none;
+  background-color: rgba(34, 34, 34, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   position: relative;
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -402,7 +434,9 @@ body {
 }
 .product-card:hover {
   transform: translateY(-10px);
-  border-color: var(--text-secondary);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  background-color: rgba(40, 40, 40, 0.6);
 }
 .product-card__tag {
   position: absolute;

@@ -5,7 +5,7 @@ import React from "react";
 const categories = [
   { id: 1, name: "Club Kits", image: "/assets/clubkit.png" }, // Replace with your actual image path
   { id: 2, name: "National Kits", image: "/assets/nationalkit.png" }, // Replace with your actual image path
-  { id: 3, name: "Player Version", image: "/assets/player-version-bg.jpg" }, // Replace with your actual image path
+  { id: 3, name: "Player Version", image: "/assets/clubkit.png" }, // Replace with your actual image path
 ];
 
 export default function CategoryGrid() {

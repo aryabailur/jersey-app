@@ -16,8 +16,8 @@ export default function HeroSection() {
   
   // Jersey 3D tilt and scale parallax
   const yJersey = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
-  const rotateXJersey = useTransform(scrollYProgress, [0, 1], [0, 15]);
-  const scaleJersey = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
+  const rotateXJersey = useTransform(scrollYProgress, [0, 1], [0, 5]);
+  const scaleJersey = useTransform(scrollYProgress, [0, 1], [1, 0.95]);
   const opacityJersey = useTransform(scrollYProgress, [0, 0.9], [1, 0]);
 
   return (

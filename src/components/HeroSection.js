@@ -4,31 +4,30 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 export default function HeroSection() {
   const containerRef = useRef(null);
   
-  // Track scroll progress relative to this section
+  // Track scroll progress for subtle parallax, no scroll-locking
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start start", "end end"]
+    offset: ["start start", "end start"]
   });
 
-  // Advanced animations for the Jersey
-  const rotateZ = useTransform(scrollYProgress, [0, 1], [0, 360]); // Full 360 rotation
-  const scale = useTransform(scrollYProgress, [0, 0.4, 0.8, 1], [1, 1.3, 0.8, 0.5]); // Dynamic scale
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "80%"]);
-  const opacity = useTransform(scrollYProgress, [0.8, 1], [1, 0]); // Fade out at the very end
-
-  // Animations for text
-  const textOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-  const textY = useTransform(scrollYProgress, [0, 0.15], [0, -100]);
-  const bgOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0.5]);
+  // Parallax effects for normal scrolling
+  const yText = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const opacityText = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  
+  // Jersey 3D tilt and scale parallax
+  const yJersey = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
+  const rotateXJersey = useTransform(scrollYProgress, [0, 1], [0, 15]);
+  const scaleJersey = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
+  const opacityJersey = useTransform(scrollYProgress, [0, 0.9], [1, 0]);
 
   return (
-    <section ref={containerRef} className="hero-scroll-container">
-      <div className="hero-sticky">
-        <motion.div className="hero-bg-dark" style={{ opacity: bgOpacity }}></motion.div>
-        
+    <section ref={containerRef} className="hero-modern-container">
+      <div className="hero-bg-dark"></div>
+      
+      <div className="hero-content-wrapper">
         <motion.div 
           className="hero-text-content"
-          style={{ opacity: textOpacity, y: textY }}
+          style={{ y: yText, opacity: opacityText }}
         >
           <h1 className="hero-title-main">
             Gear Up.<br/>Stand Out.<br/><span className="text-accent">Play Loud.</span>
@@ -42,24 +41,35 @@ export default function HeroSection() {
           </a>
         </motion.div>
 
-        {/* The rotating jersey */}
+        {/* The floating Real Madrid jersey */}
         <motion.div 
           className="hero-jersey-wrapper"
           style={{ 
-            rotateZ, 
-            scale, 
-            opacity,
-            y 
+            y: yJersey,
+            rotateX: rotateXJersey,
+            scale: scaleJersey,
+            opacity: opacityJersey,
+            perspective: 1000
+          }}
+          // Add a subtle floating animation that runs continuously
+          animate={{
+            y: [0, -15, 0],
+            rotateY: [-2, 2, -2]
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut"
           }}
         >
-          <img src="/assets/clubkit.png" alt="Official Kit" className="hero-jersey-img" />
+          <img src="/assets/real-madrid-jersey.png" alt="Real Madrid Kit" className="hero-jersey-img" />
           
           {/* Subtle glow behind the jersey */}
           <div className="hero-jersey-glow"></div>
         </motion.div>
-        
-        <div className="hero-fade-bottom"></div>
       </div>
+      
+      <div className="hero-fade-bottom"></div>
     </section>
   );
 }

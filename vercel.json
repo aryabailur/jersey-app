@@ -1,7 +1,8 @@
 {
   "build": {
     "env": {
-      "REACT_APP_CLOUDINARY_UPLOAD_PRESET": "jersey_uploads"
+      "REACT_APP_CLOUDINARY_UPLOAD_PRESET": "jersey_uploads",
+      "CI": "false"
     }
   },
   "rewrites": [

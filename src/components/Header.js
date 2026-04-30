@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase/config";
 import "../App.css"; 
 import { Search, ShoppingCart, User, Menu, X } from "lucide-react";
 

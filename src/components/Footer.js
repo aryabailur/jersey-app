@@ -16,17 +16,17 @@ export default function Footer() {
           </div>
           <div className="footer__links">
             <h4 className="footer__heading">Shop</h4>
-            <a href="#">New Arrivals</a>
-            <a href="#">Club Kits</a>
-            <a href="#">National Teams</a>
-            <a href="#">On Sale</a>
+            <a href="/#">New Arrivals</a>
+            <a href="/#">Club Kits</a>
+            <a href="/#">National Teams</a>
+            <a href="/#">On Sale</a>
           </div>
           <div className="footer__links">
             <h4 className="footer__heading">Support</h4>
-            <a href="#">Contact Us</a>
-            <a href="#">FAQ</a>
-            <a href="#">Shipping & Returns</a>
-            <a href="#">Track Order</a>
+            <a href="/#">Contact Us</a>
+            <a href="/#">FAQ</a>
+            <a href="/#">Shipping & Returns</a>
+            <a href="/#">Track Order</a>
           </div>
           <div className="footer__subscribe">
             <h4 className="footer__heading">Stay Connected</h4>
